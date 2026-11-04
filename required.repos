@@ -5,5 +5,5 @@ repositories:
     version: main
   onrobot_description:
     type: git
-    url: https://github.com/tonydle/OnRobot_ROS2_Description.git
-    version: main
+    url: https://github.com/tecsizsv/OnRobot_ROS2_Description.git
+    version: bme-5g-dev

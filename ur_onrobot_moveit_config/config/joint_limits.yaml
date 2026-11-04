@@ -23,3 +23,9 @@ joint_limits:
   wrist_3_joint:
     has_acceleration_limits: true
     max_acceleration: 5.0
+  finger_width:
+    has_acceleration_limits: true
+    max_acceleration: 0.5
+  finger_joint:
+    has_acceleration_limits: true
+    max_acceleration: 5.0
