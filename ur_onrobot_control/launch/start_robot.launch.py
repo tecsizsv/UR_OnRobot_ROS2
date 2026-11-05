@@ -23,6 +23,7 @@ def launch_setup(context, *args, **kwargs):
 
     tf_prefix = LaunchConfiguration("tf_prefix")
     use_fake_hardware = LaunchConfiguration("use_fake_hardware")
+    use_fake_gripper = LaunchConfiguration("use_fake_gripper")
 
     controller_spawner_timeout = LaunchConfiguration("controller_spawner_timeout")
     initial_joint_controller = LaunchConfiguration("initial_joint_controller")
@@ -54,6 +55,9 @@ def launch_setup(context, *args, **kwargs):
             " ",
             "use_fake_hardware:=",
             use_fake_hardware,
+            " ",
+            "use_fake_gripper:=",
+            use_fake_gripper,
             " ",
         ]
     )
@@ -91,17 +95,16 @@ def launch_setup(context, *args, **kwargs):
     )
 
     ur_control_node = Node(
-        package="ur_robot_driver",
-        executable="ur_ros2_control_node",
+        package="controller_manager",        # was: "ur_robot_driver"
+        executable="ros2_control_node",      # was: "ur_ros2_control_node"
         parameters=[
-            robot_description,
-            update_rate_config_file,
+            update_rate_config_file,         # robot_description removed: read from topic
             ParameterFile(initial_joint_controllers, allow_substs=True),
         ],
         output="screen",
         condition=UnlessCondition(use_fake_hardware),
     )
-
+    
     dashboard_client_node = Node(
         package="ur_robot_driver",
         condition=IfCondition(
@@ -131,7 +134,8 @@ def launch_setup(context, *args, **kwargs):
         executable="tool_communication.py",
         name="ur_tool_comm",
         output="screen",
-        condition=UnlessCondition(use_fake_hardware),
+        # Tool communication is only needed for the real (or emulated) gripper
+        condition=UnlessCondition(use_fake_gripper),
         parameters=[
             {
                 "robot_ip": robot_ip,
@@ -292,6 +296,14 @@ def generate_launch_description():
             "use_fake_hardware",
             default_value="false",
             description="Start robot with fake hardware mirroring command to its states.",
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "use_fake_gripper",
+            default_value=LaunchConfiguration("use_fake_hardware"),
+            description="Use mock hardware for the gripper only (arm can still be real/URSim). "
+            "Defaults to the value of use_fake_hardware.",
         )
     )
     declared_arguments.append(
