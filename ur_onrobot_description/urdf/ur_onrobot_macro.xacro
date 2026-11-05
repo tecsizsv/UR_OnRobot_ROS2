@@ -12,10 +12,7 @@
         robot_ip
         ur_type
         onrobot_type
-        tf_prefix
-        use_fake_hardware:=false
-        use_fake_gripper:=false
-        cable_connector:=true
+        tf_prefix use_fake_hardware:=false use_fake_gripper:=false cable_connector:=true
         joint_limits_parameters_file
         kinematics_parameters_file
         physical_parameters_file
@@ -26,37 +23,15 @@
         ">
 
         <!-- Create the UR robot-->
-        <xacro:ur_robot
-            name="${ur_type}"
-            parent="${parent}"
-            tf_prefix="${tf_prefix}"
-            joint_limits_parameters_file="${joint_limits_parameters_file}"
-            kinematics_parameters_file="${kinematics_parameters_file}"
-            physical_parameters_file="${physical_parameters_file}"
-            visual_parameters_file="${visual_parameters_file}"
-        >
+        <xacro:ur_robot name="${ur_type}" parent="${parent}" tf_prefix="${tf_prefix}" joint_limits_parameters_file="${joint_limits_parameters_file}" kinematics_parameters_file="${kinematics_parameters_file}" physical_parameters_file="${physical_parameters_file}" visual_parameters_file="${visual_parameters_file}">
             <origin xyz="0 0 0" rpy="0 0 0" />
         </xacro:ur_robot>
 
         <!-- ros2_control block for the UR arm (moved out of ur_robot in newer ur_description) -->
-        <xacro:ur_ros2_control
-            name="${ur_type}"
-            tf_prefix="${tf_prefix}"
-            ur_type="${ur_type}"
-            robot_ip="${robot_ip}"
-            use_mock_hardware="${use_fake_hardware}"
-            kinematics_parameters_file="${kinematics_parameters_file}"
-            script_filename="${script_filename}"
-            output_recipe_filename="${output_recipe_filename}"
-            input_recipe_filename="${input_recipe_filename}"
-        />
+        <xacro:ur_ros2_control name="${ur_type}" tf_prefix="${tf_prefix}" ur_type="${ur_type}" robot_ip="${robot_ip}" use_mock_hardware="${use_fake_hardware}" kinematics_parameters_file="${kinematics_parameters_file}" script_filename="${script_filename}" output_recipe_filename="${output_recipe_filename}" input_recipe_filename="${input_recipe_filename}" />
 
         <!--Create the OnRobot model -->
-        <xacro:onrobot
-            onrobot_type="${onrobot_type}"
-            prefix="${tf_prefix}"
-            use_fake_hardware="${use_fake_gripper}"
-        />
+        <xacro:onrobot onrobot_type="${onrobot_type}" prefix="${tf_prefix}" use_fake_hardware="${use_fake_gripper}" />
 
         <!-- Connect the OnRobot to the UR robot -->
         <joint name="${tf_prefix}onrobot_base_link_joint" type="fixed">
@@ -69,10 +44,10 @@
         <xacro:if value="${cable_connector}">
             <link name="${tf_prefix}cable_connector_0">
                 <collision>
-                <geometry>
-                    <sphere radius="0.03"/>
-                </geometry>
-                <origin xyz="0 0 0" rpy="0 0 0"/>
+                    <geometry>
+                        <sphere radius="0.03"/>
+                    </geometry>
+                    <origin xyz="0 0 0" rpy="0 0 0"/>
                 </collision>
             </link>
             <joint name="${tf_prefix}cable_connector_0_joint" type="fixed">
@@ -83,10 +58,10 @@
 
             <link name="${tf_prefix}cable_connector_1">
                 <collision>
-                <geometry>
-                    <sphere radius="0.03"/>
-                </geometry>
-                <origin xyz="0 0 0" rpy="0 0 0"/>
+                    <geometry>
+                        <sphere radius="0.03"/>
+                    </geometry>
+                    <origin xyz="0 0 0" rpy="0 0 0"/>
                 </collision>
             </link>
             <joint name="${tf_prefix}cable_connector_1_joint" type="fixed">
@@ -94,6 +69,13 @@
                 <child link="${tf_prefix}cable_connector_1"/>
                 <origin xyz="0.03 0.0 -0.03" rpy="0 0 0"/>
             </joint>
+
         </xacro:if>
+        <link name="${tf_prefix}grasping_frame"/>
+        <joint name="${tf_prefix}grasping_frame_joint" type="fixed">
+            <parent link="${tf_prefix}onrobot_base_link"/>
+            <child link="${tf_prefix}grasping_frame"/>
+            <origin xyz="0 0 0.144" rpy="0 0 0"/>
+        </joint>
     </xacro:macro>
 </robot>
